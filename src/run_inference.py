@@ -33,10 +33,15 @@ def read_video_pyav(container, indices):
 
 df = pd.read_parquet(os.path.join(base_dir, "data", "test-00000-of-00001.parquet"))
 
+output_csv = os.path.join(base_dir, "questions_with_answers.csv")
+if not os.path.exists(output_csv):
+    df.iloc[0:0].to_csv(output_csv, index=False)
+
 for idx, row in df.iterrows():
     qid = row["qid"]
     video_id = row["video_id"]
     question = row["question"]
+    question_prompt = row["question_prompt"]
     video_path = os.path.join(video_dir, f"{video_id}.mp4")
 
     print(f"[{idx+1}/{len(df)}] Processing {video_id} with qid {qid}")
@@ -55,11 +60,12 @@ for idx, row in df.iterrows():
         clip = read_video_pyav(container, indices)
 
         # Prepare conversation prompt
+        full_question = f"{question}\n{question_prompt}"
         conversation = [
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": question},
+                    {"type": "text", "text": full_question},
                     {"type": "video"},
                 ],
             },
@@ -71,11 +77,13 @@ for idx, row in df.iterrows():
         response = processor.decode(output[0][2:], skip_special_tokens=True)
 
         df.at[idx, "answer"] = response
+
+        # Append the current row to the CSV after processing the video
+        df.iloc[[idx]].to_csv(output_csv, mode='a', header=False, index=False)
+
         print(f"Processed {video_id} with qid {qid}")
 
     except Exception as e:
         print(f"Error processing {video_id} with qid {qid}: {e}")
 
-# Save updated DataFrame with answers
-df.to_csv(os.path.join(base_dir, "questions_with_answers.csv"), index=False)
 print("All videos processed. Answers saved to questions_with_answers.csv.")
