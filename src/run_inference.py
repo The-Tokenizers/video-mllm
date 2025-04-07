@@ -76,7 +76,8 @@ for idx, row in df.iterrows():
         output = model.generate(**inputs_video, max_new_tokens=100, do_sample=False)
         response = processor.decode(output[0][2:], skip_special_tokens=True)
 
-        df.at[idx, "answer"] = response
+        clean_answer = response.split("ASSISTANT:")[-1].strip()
+        df.at[idx, "answer"] = clean_answer
 
         # Append the current row to the CSV after processing the video
         df.iloc[[idx]].to_csv(output_csv, mode='a', header=False, index=False)
