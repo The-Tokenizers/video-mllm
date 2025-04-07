@@ -1,5 +1,8 @@
 accelerate==1.6.0
+av==14.3.0
+pandas==2.2.3
 protobuf==6.30.2
+pyarrow==19.0.1
 sentencepiece==0.2.0
 --extra-index-url https://download.pytorch.org/whl/cu126
 torch==2.6.0+cu126

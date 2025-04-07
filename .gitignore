@@ -24,4 +24,4 @@ __pycache__/
 *.log
 
 # Video folder
-Benchmark-AllVideos-HQ-Encoded-challenge/
+data/Benchmark-AllVideos-HQ-Encoded-challenge/
